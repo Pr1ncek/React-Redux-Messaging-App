@@ -16,7 +16,8 @@ class Register extends React.Component {
     username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    errors: []
   };
 
   handleChange = e => {
@@ -24,22 +25,59 @@ class Register extends React.Component {
   };
 
   onSubmit = e => {
-    e.preventDefault();
-    firebase
-      .auth()
-      .createUserWithEmailAndPassword(this.state.email, this.state.password)
-      .then(createdUser => console.log(createdUser))
-      .catch(err => console.error(err));
+    if (this.isFormValid()) {
+      e.preventDefault();
+      firebase
+        .auth()
+        .createUserWithEmailAndPassword(this.state.email, this.state.password)
+        .then(createdUser => console.log(createdUser))
+        .catch(err => console.error(err));
+    }
   };
 
+  isFormValid = () => {
+    let errors = [];
+    let error;
+
+    if (this.isFormEmpty(this.state)) {
+      error = { message: 'Fill in all fields' };
+      this.setState({ errors: errors.concat(error) });
+      return false;
+    } else if (!this.isPasswordValid(this.state)) {
+      error = { message: 'Password is invalid' };
+      this.setState({ errors: errors.concat(error) });
+      return false;
+    }
+    return true;
+  };
+
+  isFormEmpty = ({ username, email, password, confirmPassword }) => {
+    return (
+      !username.length ||
+      !email.length ||
+      !password.length ||
+      !confirmPassword.length
+    );
+  };
+
+  isPasswordValid = ({ password, confirmPassword }) => {
+    if (password.length < 6 || confirmPassword.length < 6) return false;
+    else if (password !== confirmPassword) return false;
+
+    return true;
+  };
+
+  displayErrors = errors =>
+    errors.map((error, i) => <p key={i}>{error.message}</p>);
+
   render() {
-    const { username, email, password, confirmPassword } = this.state;
+    const { username, email, password, confirmPassword, errors } = this.state;
 
     return (
       <Grid textAlign="center" className="app" verticalAlign="middle">
-        <Grid.Column style={{ maxWidth: '60%' }}>
-          <Header as="h1" color="orange" textAlign="center">
-            <Icon name="puzzle piece" color="orange" />
+        <Grid.Column style={{ maxWidth: 450 }}>
+          <Header as="h1" color="teal" textAlign="center">
+            <Icon name="terminal" color="teal" size="large" />
             Welcome To Messenger
           </Header>
           <Form size="huge" onSubmit={this.onSubmit}>
@@ -84,11 +122,17 @@ class Register extends React.Component {
                 value={confirmPassword}
                 onChange={this.handleChange}
               />
-              <Button inverted color="orange" size="large" fluid type="submit">
-                Submit
+              <Button color="teal" size="large" fluid type="submit">
+                Sign Up!
               </Button>
             </Segment>
           </Form>
+          {errors.length > 0 && (
+            <Message error>
+              {this.displayErrors(errors)}
+              {console.log(this.displayErrors(errors))}
+            </Message>
+          )}
           <Message>
             Already a user? <Link to="/login">Login</Link>
           </Message>
