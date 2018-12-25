@@ -10,6 +10,7 @@ import {
 } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import firebase from '../../firebase';
+import md5 from 'md5';
 
 class Register extends React.Component {
   state = {
@@ -17,7 +18,8 @@ class Register extends React.Component {
     email: '',
     password: '',
     confirmPassword: '',
-    errors: []
+    errors: [],
+    loading: false
   };
 
   handleChange = e => {
@@ -25,14 +27,50 @@ class Register extends React.Component {
   };
 
   onSubmit = e => {
+    e.preventDefault();
     if (this.isFormValid()) {
-      e.preventDefault();
+      this.setState({ loading: true, errors: [] });
+      const { email, password, username } = this.state;
       firebase
         .auth()
-        .createUserWithEmailAndPassword(this.state.email, this.state.password)
-        .then(createdUser => console.log(createdUser))
-        .catch(err => console.error(err));
+        .createUserWithEmailAndPassword(email, password)
+        .then(createdUser => {
+          createdUser.user
+            .updateProfile({
+              displayName: username,
+              photoURL: `http://gravatar.com/avatar/${md5(email)}?d=identicon`
+            })
+            .then(() => {
+              console.log(createdUser);
+              this.setState({ loading: false });
+              this.clearForm();
+            })
+            .catch(err => {
+              console.error(err);
+              this.setState({
+                errors: this.state.errors.concat(err),
+                loading: false
+              });
+            });
+        })
+        .catch(err => {
+          console.error(err);
+          this.setState({
+            errors: this.state.errors.concat(err),
+            loading: false
+          });
+        });
     }
+  };
+
+  clearForm = () => {
+    this.setState({
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      errors: []
+    });
   };
 
   isFormValid = () => {
@@ -70,8 +108,23 @@ class Register extends React.Component {
   displayErrors = errors =>
     errors.map((error, i) => <p key={i}>{error.message}</p>);
 
+  handleInputError = inputName => {
+    return this.state.errors.some(error =>
+      error.message.toLowerCase().includes(inputName)
+    )
+      ? 'error'
+      : '';
+  };
+
   render() {
-    const { username, email, password, confirmPassword, errors } = this.state;
+    const {
+      username,
+      email,
+      password,
+      confirmPassword,
+      errors,
+      loading
+    } = this.state;
 
     return (
       <Grid textAlign="center" className="app" verticalAlign="middle">
@@ -80,7 +133,7 @@ class Register extends React.Component {
             <Icon name="terminal" color="teal" size="large" />
             Welcome To Messenger
           </Header>
-          <Form size="huge" onSubmit={this.onSubmit}>
+          <Form size="huge" onSubmit={this.onSubmit} className="register-form">
             <Segment stacked>
               <Form.Input
                 fluid
@@ -91,6 +144,7 @@ class Register extends React.Component {
                 placeholder="Username"
                 value={username}
                 onChange={this.handleChange}
+                className={this.handleInputError('username')}
               />
               <Form.Input
                 fluid
@@ -101,6 +155,7 @@ class Register extends React.Component {
                 placeholder="Email"
                 value={email}
                 onChange={this.handleChange}
+                className={this.handleInputError('email')}
               />
               <Form.Input
                 fluid
@@ -111,6 +166,7 @@ class Register extends React.Component {
                 placeholder="Password"
                 value={password}
                 onChange={this.handleChange}
+                className={this.handleInputError('password')}
               />
               <Form.Input
                 fluid
@@ -121,8 +177,16 @@ class Register extends React.Component {
                 placeholder="Confirm Password"
                 value={confirmPassword}
                 onChange={this.handleChange}
+                className={this.handleInputError('password')}
               />
-              <Button color="teal" size="large" fluid type="submit">
+              <Button
+                disabled={loading}
+                className={loading ? 'loading' : ''}
+                color="teal"
+                size="large"
+                fluid
+                type="submit"
+              >
                 Sign Up!
               </Button>
             </Segment>

@@ -2,6 +2,11 @@ html,
 body,
 .app {
   height: 100vh;
-  background: rgba(3, 3, 3, 0.856);
+  background: rgba(3, 3, 3, 0.904);
   padding-top: 1em;
+}
+
+input {
+  padding-top: 3% !important;
+  font-size: 17px !important;
 }
