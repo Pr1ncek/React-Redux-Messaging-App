@@ -2,8 +2,8 @@ html,
 body,
 .app {
   height: 100vh;
-  background: rgba(3, 3, 3, 0.904);
-  padding-top: 1em;
+  background: rgba(255, 255, 255);
+  padding: 1em;
 }
 
 input {

@@ -1,8 +1,126 @@
 import React from 'react';
+import {
+  Grid,
+  Form,
+  Segment,
+  Button,
+  Header,
+  Message,
+  Icon
+} from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
+import firebase from '../../firebase';
 
 class Login extends React.Component {
+  state = {
+    email: '',
+    password: '',
+    errors: [],
+    loading: false
+  };
+
+  handleChange = e => {
+    this.setState({ [e.target.name]: e.target.value });
+  };
+
+  onSubmit = e => {
+    e.preventDefault();
+    if (this.isFormValid(this.state)) {
+      this.setState({ loading: true, errors: [] });
+      const { email, password } = this.state;
+      firebase
+        .auth()
+        .signInWithEmailAndPassword(email, password)
+        .then(signedInUser => {
+          console.log(signedInUser);
+          this.setState({ loading: false });
+        })
+        .catch(err => {
+          console.log(err);
+          this.setState({
+            loading: false,
+            errors: this.state.errors.concat(err)
+          });
+        });
+    }
+  };
+
+  isFormValid = ({ email, password }) => email && password;
+
+  clearForm = () => {
+    this.setState({
+      email: '',
+      password: '',
+      errors: []
+    });
+  };
+
+  displayErrors = errors =>
+    errors.map((error, i) => <p key={i}>{error.message}</p>);
+
+  handleInputError = inputName => {
+    return this.state.errors.some(error =>
+      error.message.toLowerCase().includes(inputName)
+    )
+      ? 'error'
+      : '';
+  };
+
   render() {
-    return <div>Login</div>;
+    const { email, password, errors, loading } = this.state;
+
+    return (
+      <Grid textAlign="center" className="app" verticalAlign="middle">
+        <Grid.Column style={{ maxWidth: 450 }}>
+          <Header as="h1" color="violet" textAlign="center">
+            <Icon name="code" color="violet" size="large" />
+            Login To Messenger
+          </Header>
+          <Form size="huge" onSubmit={this.onSubmit} className="register-form">
+            <Segment stacked>
+              <Form.Input
+                fluid
+                name="email"
+                type="email"
+                icon="mail"
+                iconPosition="left"
+                placeholder="Email"
+                value={email}
+                onChange={this.handleChange}
+                className={this.handleInputError('email')}
+              />
+              <Form.Input
+                fluid
+                name="password"
+                type="password"
+                icon="lock"
+                iconPosition="left"
+                placeholder="Password"
+                value={password}
+                onChange={this.handleChange}
+                className={this.handleInputError('password')}
+              />
+              <Button
+                disabled={loading}
+                className={loading ? 'loading' : ''}
+                color="violet"
+                size="large"
+                fluid
+                type="submit"
+              >
+                Login
+              </Button>
+            </Segment>
+          </Form>
+          {errors.length > 0 && (
+            <Message error>{this.displayErrors(errors)}</Message>
+          )}
+          <Message>
+            Don't have an account? <Link to="/register"> Register</Link>
+          </Message>
+        </Grid.Column>
+      </Grid>
+    );
   }
 }
 
