@@ -1,20 +1,16 @@
 import React from 'react';
-import {
-  Grid,
-  Header,
-  Icon,
-  Dropdown
-} from '../../../node_modules/semantic-ui-react';
+import { Grid, Header, Icon, Dropdown } from 'semantic-ui-react';
+import firebase from 'firebase';
+import { connect } from 'react-redux';
 
 class UserPanel extends React.Component {
-  dropdownOptions = () => [
+  dropdownOptions = displayName => [
     {
       text: (
         <span>
-          Signed in as <strong>User Name Here</strong>
+          Signed in as <strong>{displayName}</strong>
         </span>
       ),
-      disabled: true,
       key: 'user'
     },
     {
@@ -22,12 +18,22 @@ class UserPanel extends React.Component {
       key: 'avatar'
     },
     {
-      text: <span>Sign Out</span>,
+      text: <span onClick={this.handleSignout}>Sign Out</span>,
       key: 'signout'
     }
   ];
 
+  handleSignout = () => {
+    firebase
+      .auth()
+      .signOut()
+      .then(() => console.log('Signed Out!'));
+  };
+
   render() {
+    const { currentUser } = this.props;
+    const displayName =
+      currentUser && currentUser.displayName ? currentUser.displayName : 'User';
     return (
       <Grid style={{ background: '#4c3c4c' }}>
         <Grid.Column>
@@ -48,10 +54,10 @@ class UserPanel extends React.Component {
               trigger={
                 <span>
                   <Icon name="user" />
-                  User
+                  {displayName}
                 </span>
               }
-              options={this.dropdownOptions()}
+              options={this.dropdownOptions(displayName)}
             />
           </Header>
         </Grid.Column>
@@ -60,4 +66,8 @@ class UserPanel extends React.Component {
   }
 }
 
-export default UserPanel;
+const mapStateToProps = state => ({
+  currentUser: state.user.currentUser
+});
+
+export default connect(mapStateToProps)(UserPanel);
