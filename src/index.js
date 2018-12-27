@@ -13,7 +13,6 @@ import Register from './components/Auth/Register';
 import Spinner from './components/Spinner/Spinner';
 import 'semantic-ui-css/semantic.min.css';
 import firebase from 'firebase';
-
 import { createStore } from 'redux';
 import { Provider, connect } from 'react-redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
