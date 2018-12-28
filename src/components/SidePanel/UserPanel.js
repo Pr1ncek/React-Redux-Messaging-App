@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Header, Icon, Dropdown } from 'semantic-ui-react';
+import { Grid, Header, Icon, Dropdown, Image } from 'semantic-ui-react';
 import firebase from 'firebase';
 import { connect } from 'react-redux';
 
@@ -43,23 +43,29 @@ class UserPanel extends React.Component {
               <Icon name="code" />
               <Header.Content>Messenger</Header.Content>
             </Header>
+
+            {/* User Dropdown */}
+            <Header
+              style={{ padding: '0.25em', marginTop: '2em' }}
+              as="h4"
+              inverted
+            >
+              <Dropdown
+                trigger={
+                  <span>
+                    {currentUser && currentUser.photoURL ? (
+                      <Image src={currentUser.photoURL} spaced="right" avatar />
+                    ) : (
+                      <Icon name="user" />
+                    )}
+
+                    {displayName}
+                  </span>
+                }
+                options={this.dropdownOptions(displayName)}
+              />
+            </Header>
           </Grid.Row>
-          {/* User Dropdown */}
-          <Header
-            style={{ padding: '0.25em', marginTop: '2em' }}
-            as="h4"
-            inverted
-          >
-            <Dropdown
-              trigger={
-                <span>
-                  <Icon name="user" />
-                  {displayName}
-                </span>
-              }
-              options={this.dropdownOptions(displayName)}
-            />
-          </Header>
         </Grid.Column>
       </Grid>
     );
