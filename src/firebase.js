@@ -1,7 +1,7 @@
-import firebase from 'firebase/app';
-import 'firebase/auth';
-import 'firebase/database';
-import 'firebase/storage';
+import firebase from 'firebase';
+import 'firebase/auth/dist/index.cjs';
+import 'firebase/database/dist/index.cjs';
+import 'firebase/storage/dist/index.cjs';
 
 // Initialize Firebase
 var config = {
