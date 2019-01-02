@@ -54,17 +54,16 @@ class MessageForm extends Component {
   };
 
   render() {
-    const { errors, message } = this.state;
+    const { errors, message, loading } = this.state;
     return (
       <Segment className="message_form">
         <Input
           fluid
           name="message"
           style={{ marginBottom: '0.7em' }}
-          label={<Button icon="add" />}
-          labelPosition="left"
-          placeholder="Write your message"
           value={message}
+          icon="send"
+          size="huge"
           onChange={this.handleChange}
           className={
             errors.some(error => error.message.includes('message'))
@@ -76,6 +75,7 @@ class MessageForm extends Component {
           <Button
             onClick={this.sendMessage}
             color="orange"
+            disabled={loading}
             content="Add Reply"
             labelPosition="left"
             icon="edit"

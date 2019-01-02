@@ -11,11 +11,16 @@ input {
   font-size: 17px !important;
 }
 
-/* Messages.s */
+/* Messages.js */
 
 .messages {
   height: 700px;
   overflow-y: scroll;
+}
+
+.message_self {
+  border-left: 2px solid orange;
+  padding-left: 8px;
 }
 
 /* MessagesForm.js */
