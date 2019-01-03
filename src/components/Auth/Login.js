@@ -1,4 +1,5 @@
 import React from 'react';
+import firebase from '../../firebase';
 import {
   Grid,
   Form,
@@ -9,7 +10,6 @@ import {
   Icon
 } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import firebase from '../../firebase';
 
 class Login extends React.Component {
   state = {
@@ -19,27 +19,28 @@ class Login extends React.Component {
     loading: false
   };
 
-  handleChange = e => {
-    this.setState({ [e.target.name]: e.target.value });
+  displayErrors = errors =>
+    errors.map((error, i) => <p key={i}>{error.message}</p>);
+
+  handleChange = event => {
+    this.setState({ [event.target.name]: event.target.value });
   };
 
-  onSubmit = e => {
-    e.preventDefault();
+  handleSubmit = event => {
+    event.preventDefault();
     if (this.isFormValid(this.state)) {
-      this.setState({ loading: true, errors: [] });
-      const { email, password } = this.state;
+      this.setState({ errors: [], loading: true });
       firebase
         .auth()
-        .signInWithEmailAndPassword(email, password)
+        .signInWithEmailAndPassword(this.state.email, this.state.password)
         .then(signedInUser => {
           console.log(signedInUser);
-          this.setState({ loading: false });
         })
         .catch(err => {
-          console.log(err);
+          console.error(err);
           this.setState({
-            loading: false,
-            errors: this.state.errors.concat(err)
+            errors: this.state.errors.concat(err),
+            loading: false
           });
         });
     }
@@ -47,21 +48,8 @@ class Login extends React.Component {
 
   isFormValid = ({ email, password }) => email && password;
 
-  clearForm = () => {
-    this.setState({
-      email: '',
-      password: '',
-      errors: []
-    });
-  };
-
-  displayErrors = errors =>
-    errors.map((error, i) => <p key={i}>{error.message}</p>);
-
-  handleInputError = inputName => {
-    return this.state.errors.some(error =>
-      error.message.toLowerCase().includes(inputName)
-    )
+  handleInputError = (errors, inputName) => {
+    return errors.some(error => error.message.toLowerCase().includes(inputName))
       ? 'error'
       : '';
   };
@@ -70,53 +58,57 @@ class Login extends React.Component {
     const { email, password, errors, loading } = this.state;
 
     return (
-      <Grid textAlign="center" className="app" verticalAlign="middle">
+      <Grid textAlign="center" verticalAlign="middle" className="app">
         <Grid.Column style={{ maxWidth: 450 }}>
-          <Header as="h1" color="violet" textAlign="center">
-            <Icon name="code" color="violet" size="large" />
-            Login To Messenger
+          <Header as="h1" icon color="violet" textAlign="center">
+            <Icon name="code" color="violet" />
+            Login to DevChat
           </Header>
-          <Form size="huge" onSubmit={this.onSubmit} className="register-form">
+          <Form onSubmit={this.handleSubmit} size="large">
             <Segment stacked>
               <Form.Input
                 fluid
                 name="email"
-                type="email"
                 icon="mail"
                 iconPosition="left"
-                placeholder="Email"
-                value={email}
+                placeholder="Email Address"
                 onChange={this.handleChange}
-                className={this.handleInputError('email')}
+                value={email}
+                className={this.handleInputError(errors, 'email')}
+                type="email"
               />
+
               <Form.Input
                 fluid
                 name="password"
-                type="password"
                 icon="lock"
                 iconPosition="left"
                 placeholder="Password"
-                value={password}
                 onChange={this.handleChange}
-                className={this.handleInputError('password')}
+                value={password}
+                className={this.handleInputError(errors, 'password')}
+                type="password"
               />
+
               <Button
                 disabled={loading}
                 className={loading ? 'loading' : ''}
                 color="violet"
-                size="large"
                 fluid
-                type="submit"
+                size="large"
               >
-                Login
+                Submit
               </Button>
             </Segment>
           </Form>
           {errors.length > 0 && (
-            <Message error>{this.displayErrors(errors)}</Message>
+            <Message error>
+              <h3>Error</h3>
+              {this.displayErrors(errors)}
+            </Message>
           )}
           <Message>
-            Don't have an account? <Link to="/register"> Register</Link>
+            Don't have an account? <Link to="/register">Register</Link>
           </Message>
         </Grid.Column>
       </Grid>

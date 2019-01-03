@@ -1,17 +1,27 @@
-import { SET_USER, CLEAR_USER, SET_CURRENT_CHANNEL } from './types';
+import * as actionTypes from "./types";
 
-// User Actions
-export const setUser = user => ({
-  type: SET_USER,
-  payload: { currentUser: user }
-});
+/* User Actions */
+export const setUser = user => {
+  return {
+    type: actionTypes.SET_USER,
+    payload: {
+      currentUser: user
+    }
+  };
+};
 
-export const clearUser = () => ({
-  type: CLEAR_USER
-});
+export const clearUser = () => {
+  return {
+    type: actionTypes.CLEAR_USER
+  };
+};
 
-// Channel Actions
-export const setCurrentChannel = channel => ({
-  type: SET_CURRENT_CHANNEL,
-  payload: channel
-});
+/* Channel Actions */
+export const setCurrentChannel = channel => {
+  return {
+    type: actionTypes.SET_CURRENT_CHANNEL,
+    payload: {
+      currentChannel: channel
+    }
+  }
+}

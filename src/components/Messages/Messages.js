@@ -1,28 +1,30 @@
 import React from 'react';
 import { Segment, Comment } from 'semantic-ui-react';
+import firebase from '../../firebase';
+
 import MessagesHeader from './MessagesHeader';
 import MessageForm from './MessageForm';
-import firebase from 'firebase';
-import { connect } from 'react-redux';
 import Message from './Message';
 
 class Messages extends React.Component {
   state = {
     messagesRef: firebase.database().ref('messages'),
     messages: [],
-    messagesLoading: true
+    messagesLoading: true,
+    channel: this.props.currentChannel,
+    user: this.props.currentUser
   };
 
-  componentWillReceiveProps(nextProps) {
-    const { currentChannel, currentUser } = nextProps;
-    if (currentChannel && currentUser) {
-      this.addListeners(currentChannel.id);
+  componentDidMount() {
+    const { channel, user } = this.state;
+
+    if (channel && user) {
+      this.addListeners(channel.id);
     }
   }
 
   addListeners = channelId => {
     this.addMessageListener(channelId);
-    console.log('Messages.js Called');
   };
 
   addMessageListener = channelId => {
@@ -36,38 +38,37 @@ class Messages extends React.Component {
     });
   };
 
-  displayMessages = messages => {
-    return (
-      messages.length > 0 &&
-      messages.map(message => (
-        <Message
-          key={message.timestamp}
-          message={message}
-          currentUser={this.props.currentUser}
-        />
-      ))
-    );
-  };
+  displayMessages = messages =>
+    messages.length > 0 &&
+    messages.map(message => (
+      <Message
+        key={message.timestamp}
+        message={message}
+        user={this.state.user}
+      />
+    ));
+
   render() {
-    const { messagesRef, messages } = this.state;
+    const { messagesRef, messages, channel, user } = this.state;
 
     return (
       <React.Fragment>
         <MessagesHeader />
-        <Segment className="messages">
-          <Comment.Group>
+
+        <Segment style={{ height: '52em' }}>
+          <Comment.Group className="messages">
             {this.displayMessages(messages)}
           </Comment.Group>
         </Segment>
-        <MessageForm messagesRef={messagesRef} />
+
+        <MessageForm
+          messagesRef={messagesRef}
+          currentChannel={channel}
+          currentUser={user}
+        />
       </React.Fragment>
     );
   }
 }
 
-const mapStateToProps = state => ({
-  currentUser: state.user.currentUser,
-  currentChannel: state.channel.currentChannel
-});
-
-export default connect(mapStateToProps)(Messages);
+export default Messages;
