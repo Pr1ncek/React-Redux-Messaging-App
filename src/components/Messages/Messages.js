@@ -55,7 +55,7 @@ class Messages extends React.Component {
       <React.Fragment>
         <MessagesHeader />
 
-        <Segment style={{ height: '52em' }}>
+        <Segment>
           <Comment.Group className="messages">
             {this.displayMessages(messages)}
           </Comment.Group>
