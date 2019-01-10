@@ -14,7 +14,7 @@ body,
 /* Messages.js */
 .messages {
   width: 100% !important;
-  height: 68vh;
+  height: 65vh;
   overflow-y: scroll;
   margin: 0 auto !important;
 }
@@ -24,7 +24,6 @@ body,
   position: fixed !important;
   bottom: 1em;
   margin-left: 320px !important;
-  padding: 2em !important;
   left: 0;
   right: 1em;
   z-index: 200;
@@ -43,4 +42,24 @@ body,
 /* ProgressBar.js */
 .progress__bar {
   margin: 0.3em 0 0 0 !important;
+}
+
+/* ColorPanel.js */
+.color__container {
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  width: 35px;
+  border-radius: 3px;
+}
+
+.color__square {
+  width: 35px;
+  height: 35px;
+}
+
+.color__overlay {
+  width: 85px;
+  height: 35px;
+  transform: rotate(225deg);
 }

@@ -25,7 +25,6 @@ class MetaPanel extends React.Component {
   formatCount = num => (num > 1 || num === 0 ? `${num} posts` : `${num} post`);
 
   displayTopPosters = posts => {
-    console.log(posts);
     return Object.entries(posts)
       .sort((a, b) => b[1] - a[1])
       .map(([key, val], i) => (

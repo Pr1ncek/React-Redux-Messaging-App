@@ -13,7 +13,7 @@ const isImage = message => {
 const timeFromNow = timestamp => moment(timestamp).fromNow();
 
 const Message = ({ message, user }) => (
-  <Comment style={{ fontSize: '17px', marginBottom: '20px' }}>
+  <Comment style={{ marginBottom: '20px' }}>
     <Comment.Avatar src={message.user.avatar} />
     <Comment.Content className={isOwnMessage(message, user)}>
       <Comment.Author as="a">{message.user.name}</Comment.Author>
