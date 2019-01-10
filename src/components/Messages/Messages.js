@@ -193,7 +193,7 @@ class Messages extends React.Component {
           isChannelStarred={isChannelStarred}
         />
 
-        <Segment>
+        <Segment style={{}}>
           <Comment.Group className="messages">
             {searchTerm
               ? this.displayMessages(searchResults)

@@ -1,5 +1,12 @@
 import React from 'react';
-import { Segment, Accordion, Icon, Header, Image } from 'semantic-ui-react';
+import {
+  Segment,
+  Accordion,
+  Icon,
+  Header,
+  Image,
+  List
+} from 'semantic-ui-react';
 
 class MetaPanel extends React.Component {
   state = {
@@ -15,8 +22,27 @@ class MetaPanel extends React.Component {
     this.setState({ activeIndex: newIndex });
   };
 
+  formatCount = num => (num > 1 || num === 0 ? `${num} posts` : `${num} post`);
+
+  displayTopPosters = posts => {
+    console.log(posts);
+    return Object.entries(posts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([key, val], i) => (
+        <List.Item key={i} style={{ marginBottom: '10px' }}>
+          <Image avatar src={val.avatar} />
+          <List.Content>
+            <List.Header as="a">{key}</List.Header>
+            <List.Description>{this.formatCount(val.count)}</List.Description>
+          </List.Content>
+        </List.Item>
+      ))
+      .slice(0, 5);
+  };
+
   render() {
     const { activeIndex, privateChannel, channel } = this.state;
+    const { userPosts } = this.props;
 
     if (privateChannel) return null;
 
@@ -49,7 +75,7 @@ class MetaPanel extends React.Component {
             Top Posters
           </Accordion.Title>
           <Accordion.Content active={activeIndex === 1}>
-            posters
+            <List>{userPosts && this.displayTopPosters(userPosts)}</List>
           </Accordion.Content>
 
           <Accordion.Title
@@ -62,7 +88,7 @@ class MetaPanel extends React.Component {
             Created By
           </Accordion.Title>
           <Accordion.Content active={activeIndex === 2}>
-            <Header as="h3">
+            <Header as="h4">
               <Image circular src={channel && channel.createdBy.avatar} />
               {channel && channel.createdBy.name}
             </Header>
