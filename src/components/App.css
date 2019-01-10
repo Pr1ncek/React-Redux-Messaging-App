@@ -6,15 +6,14 @@ body,
   padding: 1em;
 }
 
-/* Sidepanel.js */
+/* SidePanel.js */
 .menu {
   padding-bottom: 2em;
 }
 
 /* Messages.js */
 .messages {
-  height: 71vh;
-  width: 100% !important;
+  height: 68vh;
   overflow-y: scroll;
   margin: 0 auto !important;
 }
@@ -23,10 +22,10 @@ body,
 .message__form {
   position: fixed !important;
   bottom: 1em;
-  margin-left: 330px !important;
+  margin-left: 320px !important;
+  padding: 2em !important;
   left: 0;
   right: 1em;
-  padding: 25px 20px !important;
   z-index: 200;
 }
 
@@ -42,6 +41,5 @@ body,
 
 /* ProgressBar.js */
 .progress__bar {
-  margin: 0 0 0.3em 0 !important;
-  position: fixed;
+  margin: 0.3em 0 0 0 !important;
 }
