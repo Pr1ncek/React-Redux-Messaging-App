@@ -2,6 +2,8 @@ import React from 'react';
 import firebase from '../../firebase';
 import uuidv4 from 'uuid/v4';
 import { Segment, Button, Input } from 'semantic-ui-react';
+import { Picker, emojiIndex } from 'emoji-mart';
+import 'emoji-mart/css/emoji-mart.css';
 
 import FileModal from './FileModal';
 import ProgressBar from './ProgressBar';
@@ -11,13 +13,15 @@ class MessageForm extends React.Component {
     uploadState: '',
     uploadTask: null,
     storageRef: firebase.storage().ref(),
+    typingRef: firebase.database().ref('typing'),
     percentUploaded: 0,
     message: '',
     channel: this.props.currentChannel,
     user: this.props.currentUser,
     loading: false,
     errors: [],
-    modal: false
+    modal: false,
+    emojiPicker: false
   };
 
   openModal = () => this.setState({ modal: true });
@@ -47,7 +51,7 @@ class MessageForm extends React.Component {
 
   sendMessage = () => {
     const { getMessagesRef } = this.props;
-    const { message, channel } = this.state;
+    const { message, channel, typingRef, user } = this.state;
 
     if (message) {
       this.setState({ loading: true });
@@ -57,6 +61,10 @@ class MessageForm extends React.Component {
         .set(this.createMessage())
         .then(() => {
           this.setState({ loading: false, message: '', errors: [] });
+          typingRef
+            .child(channel.id)
+            .child(user.uid)
+            .remove();
         })
         .catch(err => {
           console.error(err);
@@ -143,6 +151,52 @@ class MessageForm extends React.Component {
       });
   };
 
+  handleKeyDown = event => {
+    if (event.ctrlKey && event.keyCode === 13) {
+      this.sendMessage();
+    }
+
+    const { message, typingRef, channel, user } = this.state;
+
+    if (message) {
+      typingRef
+        .child(channel.id)
+        .child(user.uid)
+        .set(user.displayName);
+    } else {
+      typingRef
+        .child(channel.id)
+        .child(user.uid)
+        .remove();
+    }
+  };
+
+  handleTogglePicker = () => {
+    this.setState({ emojiPicker: !this.state.emojiPicker });
+  };
+
+  handleAddEmoji = emoji => {
+    const oldMessage = this.state.message;
+    const newMessage = this.colonToUnicode(` ${oldMessage} ${emoji.colons} `);
+    this.setState({ message: newMessage, emojiPicker: false });
+    setTimeout(() => this.messageInputRef.focus(), 0);
+  };
+
+  colonToUnicode = message => {
+    return message.replace(/:[A-Za-z0-9_+-]+:/g, x => {
+      x = x.replace(/:/g, '');
+      let emoji = emojiIndex.emojis[x];
+      if (typeof emoji !== 'undefined') {
+        let unicode = emoji.native;
+        if (typeof unicode !== 'undefined') {
+          return unicode;
+        }
+      }
+      x = ':' + x + ':';
+      return x;
+    });
+  };
+
   render() {
     const {
       errors,
@@ -150,24 +204,42 @@ class MessageForm extends React.Component {
       loading,
       modal,
       percentUploaded,
-      uploadState
+      uploadState,
+      emojiPicker
     } = this.state;
 
     return (
       <Segment className="message__form">
+        {emojiPicker && (
+          <Picker
+            set="google"
+            className="emojipicker"
+            title="Pick your emoji"
+            emoji="point_up"
+            onSelect={this.handleAddEmoji}
+          />
+        )}
         <ProgressBar
           percentUploaded={percentUploaded}
           uploadState={uploadState}
         />
         <Input
           fluid
+          ref={node => (this.messageInputRef = node)}
           name="message"
           size="large"
           icon="send"
           onChange={this.handleChange}
+          onKeyDown={this.handleKeyDown}
           value={message}
           style={{ marginBottom: '1em' }}
-          label={<Button icon={'add'} />}
+          label={
+            <Button
+              icon={emojiPicker ? 'close' : 'add'}
+              onClick={this.handleTogglePicker}
+              content={emojiPicker ? 'Close' : null}
+            />
+          }
           labelPosition="left"
           className={
             errors.some(error => error.message.includes('message'))
